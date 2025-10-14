@@ -10,6 +10,9 @@ import org.springframework.data.repository.query.Param;
 
 //Since this is inherited from the JpaRepository, no need to annotate it with @Repository or @Componenet
 public interface AccountRepository extends JpaRepository<Account, Integer> {
-    @Query("select a from account a where a.username = :username")
-    List<Account> findByUserName(@Param("username") String username);
+    //This is similar with if i put at head of the method
+    //@Query("SELECT CASE WHEN COUNT(a) > 0 THEN true ELSE false END FROM Account a WHERE a.username = :username")
+    boolean existsByUsername(String username); //Return true if the username exists
+
+    Account findByUsernameAndPassword(String username, String password);
 }

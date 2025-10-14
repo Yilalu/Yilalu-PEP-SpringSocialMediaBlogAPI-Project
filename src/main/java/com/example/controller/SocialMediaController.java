@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -32,22 +33,33 @@ public class SocialMediaController {
     private MessageService messageService;
 
     @PostMapping("/register")
-    public ResponseEntity<?> postRegisterAccount(@RequestBody Account account){
-        try {
-            Account newAccount = accountService.register(account);
-            return ResponseEntity.ok(newAccount);
-        } catch (RuntimeException e) {
-            //Duplicate userName
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        }
+    public ResponseEntity<Account> postRegisterAccount(@RequestBody Account account){
+        Account newAccount = accountService.registerAccount(account);
+        return ResponseEntity.ok(newAccount);
+    } 
+    
+    @ExceptionHandler(IllegalStateException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ResponseEntity<String> handleDuplicateUsername(IllegalStateException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+    }
+    
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<String> handleBadRequest(IllegalArgumentException e) {
+        return ResponseEntity.status(400).body(e.getMessage());
     }
 
     @PostMapping("/login")
-    public Account postLoginAccount(@RequestBody Account account) {
-        return account;
+    public  ResponseEntity<Account> postLoginAccount(@RequestBody Account account) {
+        Account loggedIn = accountService.logiAccount(account);
+        return ResponseEntity.ok(loggedIn);
     }
+    //Handle if there user entered unexisting or unmatched inputs
+    @ExceptionHandler(SecurityException.class)
+    public ResponseEntity<String> handleUnauthorized(SecurityException e) {
+        return ResponseEntity.status(401).body(e.getMessage());
+    }
+
 
     @PostMapping("/messages")
     public Message posMessage(@RequestBody Message message) {

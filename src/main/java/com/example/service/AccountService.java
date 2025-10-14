@@ -19,13 +19,25 @@ public class AccountService {
         this.accountRepository = accountRepository;
     }
 
-    public Account register(Account account) throws Exception {
-        List<Account> existingUserName = accountRepository.findByUserName(account.getUsername());
+    public Account registerAccount(Account account) {
 
-        if (account.getUsername().isBlank() || account.getPassword().length() < 4 || existingUserName != null) {
-            return null;
+        if(account.getUsername().isBlank() || account.getPassword().length() < 4){
+            throw new IllegalArgumentException("Invalid username or password");
+        }
+        
+        if (accountRepository.existsByUsername(account.getUsername())) {
+            throw new IllegalStateException("Username already exists.");
         }
         return accountRepository.save(account);
         
+        
+    }
+    public Account logiAccount(Account account) {
+        Account existingAccount = accountRepository.findByUsernameAndPassword(account.getUsername(), account.getPassword());
+        if (existingAccount ==  null) {
+            throw new SecurityException("Username or password does not exist");
+        }
+        return existingAccount;
+          
     }
 }
