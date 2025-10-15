@@ -30,6 +30,8 @@ public class SocialMediaController {
 
      @Autowired
     private AccountService accountService;
+
+    @Autowired
     private MessageService messageService;
 
     @PostMapping("/register")
@@ -62,8 +64,9 @@ public class SocialMediaController {
 
 
     @PostMapping("/messages")
-    public Message posMessage(@RequestBody Message message) {
-        return message;
+    public ResponseEntity<Message> posMessage(@RequestBody Message message) {
+        Message newMessage  = messageService.createMessage(message);
+        return ResponseEntity.ok(newMessage);
     }
 
     @GetMapping("/messages")
