@@ -4,6 +4,8 @@ import com.example.entity.Message;
 import com.example.service.AccountService;
 import com.example.service.MessageService;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -64,29 +66,36 @@ public class SocialMediaController {
 
 
     @PostMapping("/messages")
-    public ResponseEntity<Message> posMessage(@RequestBody Message message) {
+    public ResponseEntity<Message> postMessage(@RequestBody Message message) {
         Message newMessage  = messageService.createMessage(message);
         return ResponseEntity.ok(newMessage);
     }
 
     @GetMapping("/messages")
-    public Message getMessage(@RequestBody Message message) {
-        return message;
+    public ResponseEntity<List<Message>> getAllMessages() {
+        List<Message> messages = messageService.getAllMessages();
+        return ResponseEntity.ok(messages);
     }
 
-    @GetMapping("/message{messageId}")
-    public Message getMessageById(@RequestBody Message message, @PathVariable Integer messageId) {
-        return null;
+    @GetMapping("/messages/{messageId}")
+    public ResponseEntity<Message> getMessageById(@PathVariable Integer messageId) {
+        Message message = messageService.getByMessageId(messageId);
+        return ResponseEntity.ok(message);
     }
 
-    @DeleteMapping("/message{messageId}")
-    public Message deletMessageById (@RequestBody Message message, @PathVariable Integer messageId) {
-        return null;
+    @DeleteMapping("/messages/{messageId}")
+    public ResponseEntity<Integer> deletMessageById (@PathVariable Integer messageId) {
+        Integer deletedMessage = messageService.deleteMessageById(messageId);
+        if(deletedMessage != null) {
+           return ResponseEntity.ok(deletedMessage);
+        }
+        return ResponseEntity.ok().build();
     }
 
-    @PatchMapping("/message{messageId}")
-    public Message updatMessageById(@RequestBody Message message, @PathVariable Integer messageId) {
-        return null;
+    @PatchMapping("/messages/{messageId}")
+    public ResponseEntity<Integer> updatMessageById(@RequestBody Message message, @PathVariable Integer messageId) {
+        Integer updatedMessage = messageService.updateMessageById(message, messageId);
+        return ResponseEntity.ok(updatedMessage);
     }
 
     @GetMapping("/accounts/{accountId}/messages")
