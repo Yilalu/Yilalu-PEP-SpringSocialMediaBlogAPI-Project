@@ -5,7 +5,6 @@ import com.example.repository.MessageRepository;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.example.repository.AccountRepository;
@@ -60,8 +59,8 @@ public class MessageService {
         existingMessage.setMessageText(message.getMessageText());
         return 1;
     }
-    
 
-
-    
+    public List<Message> getUserMessage(Integer accountId) {
+        return messageRepository.findAllByPostedBy(accountId);
+    }  
 }
