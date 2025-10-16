@@ -7,17 +7,14 @@ import com.example.service.MessageService;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -30,59 +27,67 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/")
 public class SocialMediaController {
 
-     @Autowired
+    @Autowired
     private AccountService accountService;
 
     @Autowired
     private MessageService messageService;
 
+    /**
+     * Registers a new user account.
+     * @param account The account details from the request body.
+     * @return The newly created account in the response body.
+    */
     @PostMapping("/register")
     public ResponseEntity<Account> postRegisterAccount(@RequestBody Account account){
         Account newAccount = accountService.registerAccount(account);
         return ResponseEntity.ok(newAccount);
     } 
-    
-    @ExceptionHandler(IllegalStateException.class)
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public ResponseEntity<String> handleDuplicateUsername(IllegalStateException e) {
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
-    }
-    
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<String> handleBadRequest(IllegalArgumentException e) {
-        return ResponseEntity.status(400).body(e.getMessage());
-    }
-
+    /**
+     * Authenticates a user by validating their username and password.
+     * @param account The login credentials.
+     * @return The logged-in account details if successful.
+    */
     @PostMapping("/login")
     public  ResponseEntity<Account> postLoginAccount(@RequestBody Account account) {
         Account loggedIn = accountService.logiAccount(account);
         return ResponseEntity.ok(loggedIn);
     }
-    //Handle if there user entered unexisting or unmatched inputs
-    @ExceptionHandler(SecurityException.class)
-    public ResponseEntity<String> handleUnauthorized(SecurityException e) {
-        return ResponseEntity.status(401).body(e.getMessage());
-    }
 
-
+    /**
+     * Creates a new message.
+     * @param message The message object to create.
+     * @return The created message with its generated ID.
+    */
     @PostMapping("/messages")
     public ResponseEntity<Message> postMessage(@RequestBody Message message) {
         Message newMessage  = messageService.createMessage(message);
         return ResponseEntity.ok(newMessage);
     }
-
+    /**
+     * Retrieves all messages.
+     * @return A list of all messages (can be empty).
+    */
     @GetMapping("/messages")
     public ResponseEntity<List<Message>> getAllMessages() {
         List<Message> messages = messageService.getAllMessages();
         return ResponseEntity.ok(messages);
     }
-
+    /**
+     * Retrieves a specific message by ID. 
+     * @param messageId The ID of the message.
+     * @return The message if found, or an empty body if not.
+    */
     @GetMapping("/messages/{messageId}")
     public ResponseEntity<Message> getMessageById(@PathVariable Integer messageId) {
         Message message = messageService.getByMessageId(messageId);
         return ResponseEntity.ok(message);
     }
-
+    /**
+     * Deletes a specific message by ID.
+     * @param messageId The ID of the message to delete.
+     * @return 1 if deleted, or an empty response if it didn’t exist.
+    */
     @DeleteMapping("/messages/{messageId}")
     public ResponseEntity<Integer> deletMessageById (@PathVariable Integer messageId) {
         Integer deletedMessage = messageService.deleteMessageById(messageId);
@@ -91,17 +96,25 @@ public class SocialMediaController {
         }
         return ResponseEntity.ok().build();
     }
-
+    /**
+     * Updates the text of a specific message.
+     * @param message The message containing updated text.
+     * @param messageId The ID of the message to update.
+     * @return 1 if the update succeeded.
+    */
     @PatchMapping("/messages/{messageId}")
     public ResponseEntity<Integer> updatMessageById(@RequestBody Message message, @PathVariable Integer messageId) {
         Integer updatedMessage = messageService.updateMessageById(message, messageId);
         return ResponseEntity.ok(updatedMessage);
     }
-
+    /**
+     * Retrieves all messages posted by a specific user.
+     * @param accountId The ID of the account (user).
+     * @return A list of messages posted by that user.
+    */
     @GetMapping("/accounts/{accountId}/messages")
     public ResponseEntity<List<Message>> getUserMessage(@PathVariable Integer accountId) {
         List<Message> messages = messageService.getUserMessage(accountId);
         return ResponseEntity.ok(messages);
     }
-
 }
